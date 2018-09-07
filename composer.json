@@ -1,0 +1,20 @@
+{
+    "name": "aileshe/weeio-di",
+    "description": "PHP-IOC(DI)",
+    "type": "library",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Dejan",
+            "email": "673008865@qq.com"
+        }
+    ],
+    "require": {
+        "php":">=5.4"
+    },
+    "autoload": {
+        "psr-4":{
+            "weeio\\DI\\":"src/weeio/DI"
+        }
+    }
+}
