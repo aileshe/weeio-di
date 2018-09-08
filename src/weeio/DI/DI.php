@@ -39,27 +39,41 @@ class DI
     /**
      * 添加一个实例对象到容器 - 已存在实例不进行构建
      * @param  $name        键名(对象名)
-     * @param  $definition  实例对象(classObject)
-     * @param  void
+     * @param  $instance    实例对象(classObject)
+     * @param  Bool         返回true 成功
      */
-    public static function set($name, $definition)
+    public static function set($name, $instance)
     {
         # 已存在实例不进行构建
-        if(!isset(self::$_sharedContainer[$name])){
-            self::$_sharedContainer[$name] = $definition;
+        if(is_object(($instance = call_user_func($instance))) && !isset(self::$_sharedContainer[$name])){
+            self::$_sharedContainer[$name] = $instance;
+            # 定义 DiAwareInterface 接口，自动注入 Di
+            if ($instance instanceof \DiAwareInterface){
+                $instance->setDI(self::$_Di);
+            }
+            return true;
         }
+        return false;
     }
 
     /**
      * 添加一个实例对象到容器 - 非共享实例, 每次调用重新构建
      * @param  $name        键名(对象名)
-     * @param  $definition  实例对象(classObject)
-     * @param  void
+     * @param  $instance    实例对象(classObject)
+     * @param  Bool         返回true 成功
      */
-    public static function _set($name, $definition)
+    public static function _set($name, $instance)
     {
         # 非共享实例, 每次调用重新构建
-        self::$_container[$name] = $definition;
+        if(is_object(($instance = call_user_func($instance))) && !isset(self::$_container[$name])){
+            self::$_container[$name] = $instance;
+            # 定义 DiAwareInterface 接口，自动注入 Di
+            if ($instance instanceof \DiAwareInterface){
+                $instance->setDI(self::$_Di);
+            }
+            return true;
+        }
+        return false;
     }
  
     /**
@@ -73,10 +87,6 @@ class DI
             $instance = self::$_sharedContainer[$name];
         }else{
             throw new Exception("Instance '{$name}' wasn't found in the dependency injection container");
-        }
-        # 定义 DiAwareInterface 接口，自动注入 Di
-        if (is_object(($instance = call_user_func($instance))) && ($instance instanceof \DiAwareInterface)){
-            $instance->setDI(self::$_Di);
         }
         return $instance;
     }
@@ -92,10 +102,6 @@ class DI
             $instance = self::$_container[$name];
         }else{
             throw new Exception("Instance '{$name}' wasn't found in the dependency injection container");
-        }
-        # 定义 DiAwareInterface 接口，自动注入 Di
-        if (is_object(($instance = call_user_func($instance))) && ($instance instanceof \DiAwareInterface)){
-            $instance->setDI(self::$_Di);
         }
         return $instance;
     }
